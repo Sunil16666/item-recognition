@@ -1,10 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import pandas as pd
-import requests
-import os
-import time
-
+import re
 
 URL_TO_SCAN = "https://www.ebay-kleinanzeigen.de/s-muenster-%28westfalen%29/laptop/k0l929"
 driver = webdriver.Chrome(executable_path='/Users/linushenn/Desktop/Chromedriver/chromedriver')
@@ -22,15 +18,20 @@ def scanning():
 
     content = driver.page_source
     soup = BeautifulSoup(content, 'html.parser')
-    for a in soup.find_all('a', href=True, attrs={'class': 'ellipsis'}):
 
+    for a in soup.find_all('article', attrs={'class': 'aditem'}):
         price = a.find('p', attrs={'class': 'aditem-main--middle--price'})
         product = a.find('a', attrs={'class': 'ellipsis'})
         location = a.find('div', attrs={'class': 'aditem-main--top--left'})
 
-        products.append(str(product.text))
-        prices.append(str(price.text))
-        locations.append(str(location.text))
+        products.append(re.sub(r"\([^)]*\)", '', str(product.text).replace(" ", "")))
+        prices.append(str(price.text).replace(" ", "").replace('\n', ''))
+        locations.append(str(location.text).replace(" ", "").replace('\n', ''))
+
+    print(products)
+    print(prices)
+    print(locations)
+    driver.close()
 
 
 scanning()
