@@ -2,11 +2,12 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import re
 from time import sleep
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--headless")
 URL_TO_SCAN = "https://www.ebay-kleinanzeigen.de/s-muenster-%28westfalen%29/laptop/k0l929"
 driver = webdriver.Chrome(executable_path='/Users/linushenn/Desktop/Chromedriver/chromedriver', options=chrome_options)
 
@@ -20,7 +21,6 @@ driver.request_interceptor = interceptor
 
 
 def scanning():
-
     products = []
     locations = []
     prices = []
@@ -34,7 +34,8 @@ def scanning():
     driver.find_element(By.ID, 'gdpr-banner-accept').click()
     sleep(2)
 
-    for i in range(2):
+    'search in all available pages, make variable for that!, or do if button exist then do this'
+    while len(driver.find_elements(By.CLASS_NAME, 'pagination-next')) > 0:
         for a in soup.find_all('article', attrs={'class': 'aditem'}):
             price = a.find('p', attrs={'class': 'aditem-main--middle--price'})
             product = a.find('a', attrs={'class': 'ellipsis'})
@@ -46,11 +47,11 @@ def scanning():
 
         driver.find_element(By.CLASS_NAME, 'pagination-next').click()
         sleep(2)
-
+    else:
+        driver.close()
     print(products)
     print(prices)
     print(locations)
-    driver.close()
 
 
 scanning()
