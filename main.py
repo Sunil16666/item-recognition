@@ -71,6 +71,8 @@ def scanning():
     with open('items.csv', 'w', newline='') as item_storing:
         writer = csv.writer(item_storing, quoting=csv.QUOTE_ALL)
         writer.writerow(products)
+        writer.writerow(prices)
+        writer.writerow(locations)
 
     'make proper sorting based on the price'
     # numpy.sort(products, axis=-1, kind='quicksort')
