@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import csv
 import numpy
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -52,18 +53,24 @@ def scanning():
             else:
                 prices.append('n/a')
             locations.append(str(location.text).replace(" ", "").replace('\n', ''))
+            try:
+                driver.find_element(By.CLASS_NAME, 'pagination-next').click()
+                sleep(2)
+            except:
+                pass
 
-        get_element()
-
+    get_element()
     while len(driver.find_elements(By.CLASS_NAME, 'pagination-next')) > 0:
         get_element()
-        driver.find_element(By.CLASS_NAME, 'pagination-next').click()
-        sleep(2)
     else:
         driver.close()
     print(products)
     print(prices)
     print(locations)
+
+    with open('items.csv', 'w', newline='') as item_storing:
+        writer = csv.writer(item_storing, quoting=csv.QUOTE_ALL)
+        writer.writerow(products)
 
     'make proper sorting based on the price'
     # numpy.sort(products, axis=-1, kind='quicksort')
