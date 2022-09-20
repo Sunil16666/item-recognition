@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 import numpy
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -50,11 +52,13 @@ def scanning():
             else:
                 prices.append('n/a')
             locations.append(str(location.text).replace(" ", "").replace('\n', ''))
-            driver.find_element(By.CLASS_NAME, 'pagination-next').click()
-            sleep(2)
+
+        get_element()
 
     while len(driver.find_elements(By.CLASS_NAME, 'pagination-next')) > 0:
         get_element()
+        driver.find_element(By.CLASS_NAME, 'pagination-next').click()
+        sleep(2)
     else:
         driver.close()
     print(products)
