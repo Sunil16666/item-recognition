@@ -53,11 +53,13 @@ def scanning():
     content = driver.page_source
 
     soup = BeautifulSoup(content, 'html.parser')
-    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, 'gdpr-banner-accept')))
-    driver.find_element(By.ID, 'gdpr-banner-accept').click()
+    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, 'gdpr-banner-accept'))).click()
 
     def get_element():
-        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'aditem')))
+        try:
+            WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'aditem')))
+        except TimeoutException:
+            pass
         for a in soup.find_all('article', attrs={'class': 'aditem'}):
             price = a.find('p', attrs={
                 'class': 'aditem-main--middle--price' and 'aditem-main--middle--price-shipping--price'})
@@ -71,15 +73,18 @@ def scanning():
                 prices.append('n/a')
             locations.append(str(location.text).replace(" ", "").replace('\n', ''))
             try:
-                if driver.find_elements(By.CSS_SELECTOR, '#srchrslt-pagination > div > div.pagination-nav > a'):
-                    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next'))).click()
+                if driver.find_elements(By.CLASS_NAME, 'pagination-next'):
+                    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next')))
+                    driver.find_element(By.CLASS_NAME, 'pagination-next').click()
                 else:
                     pass
-            except NoSuchElementException and TimeoutException:
+            except NoSuchElementException:
                 pass
 
-    get_element()
-    while driver.find_elements(By.CSS_SELECTOR, '#srchrslt-pagination > div > div.pagination-nav > a') != 0:
+    if driver.find_elements(By.CLASS_NAME, 'pagination-next'):
+        get_element()
+    while driver.find_elements(By.CLASS_NAME, 'pagination-next'):
+        print(driver.find_elements(By.CLASS_NAME, 'pagination-next'))
         get_element()
     else:
         driver.close()
