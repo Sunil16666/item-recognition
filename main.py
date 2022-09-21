@@ -10,6 +10,9 @@ from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 ELEMENT_TO_SEARCH = input("enter element to search for: ")
 PATH_TO_CHROME_EXTENSION = r'/Users/linushenn/Library/Application Support/Google/Chrome/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm'
@@ -50,11 +53,11 @@ def scanning():
     content = driver.page_source
 
     soup = BeautifulSoup(content, 'html.parser')
-
+    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, 'gdpr-banner-accept')))
     driver.find_element(By.ID, 'gdpr-banner-accept').click()
-    sleep(4)
 
     def get_element():
+        WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'aditem')))
         for a in soup.find_all('article', attrs={'class': 'aditem'}):
             price = a.find('p', attrs={
                 'class': 'aditem-main--middle--price' and 'aditem-main--middle--price-shipping--price'})
@@ -68,13 +71,15 @@ def scanning():
                 prices.append('n/a')
             locations.append(str(location.text).replace(" ", "").replace('\n', ''))
             try:
-                driver.find_element(By.CLASS_NAME, 'pagination-next').click()
-                sleep(2)
-            except NoSuchElementException:
+                if driver.find_elements(By.CSS_SELECTOR, '#srchrslt-pagination > div > div.pagination-nav > a'):
+                    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next'))).click()
+                else:
+                    pass
+            except NoSuchElementException and TimeoutException:
                 pass
 
     get_element()
-    while len(driver.find_elements(By.CLASS_NAME, 'pagination-next')) > 0:
+    while driver.find_elements(By.CSS_SELECTOR, '#srchrslt-pagination > div > div.pagination-nav > a') != 0:
         get_element()
     else:
         driver.close()
