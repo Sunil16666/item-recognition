@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 import csv
+import os
 import numpy
 from selenium import webdriver
 from bs4 import BeautifulSoup
@@ -25,6 +26,18 @@ def interceptor(request):
 
 
 driver.request_interceptor = interceptor
+
+
+def handling_items_csv():
+    user_input = input("Do you want do keep items.csv? (y) for YES and (n) for NO: ")
+    while True:
+        if user_input == 'n':
+            os.remove("items.csv")
+            break
+        elif user_input == 'y':
+            break
+        else:
+            print('wrong input')
 
 
 def scanning():
@@ -80,3 +93,4 @@ def scanning():
 
 
 scanning()
+handling_items_csv()
