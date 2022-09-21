@@ -8,6 +8,7 @@ import re
 from time import sleep
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import NoSuchElementException
 
 ELEMENT_TO_SEARCH = input("enter element to search for: ")
 PATH_TO_CHROME_EXTENSION = r'/Users/linushenn/Library/Application Support/Google/Chrome/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm'
@@ -56,7 +57,7 @@ def scanning():
             try:
                 driver.find_element(By.CLASS_NAME, 'pagination-next').click()
                 sleep(2)
-            except:
+            except NoSuchElementException:
                 pass
 
     get_element()
