@@ -13,11 +13,10 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 
+# START: INIT
 ELEMENT_TO_SEARCH = input("enter element to search for: ")
-PATH_TO_CHROME_EXTENSION = r'/Users/linushenn/Library/Application Support/Google/Chrome/Default/Extensions/cjpalhdlnbpafiamejdnhcphjbkeiagm'
 chrome_options = Options()
 # chrome_options.add_argument("--headless")
-chrome_options.add_argument('load extension=' + PATH_TO_CHROME_EXTENSION)
 URL_TO_SCAN = f"https://www.ebay-kleinanzeigen.de/s-muenster-%28westfalen%29/{ELEMENT_TO_SEARCH}/k0l929"
 driver = webdriver.Chrome(executable_path='/Users/linushenn/Desktop/Chromedriver/chromedriver', options=chrome_options)
 
@@ -28,9 +27,10 @@ def interceptor(request):
 
 
 driver.request_interceptor = interceptor
+# END: INIT
 
 
-def handling_items_csv():
+def handling_csv():
     user_input = input("Do you want do keep items.csv? (y) for YES and (n) for NO: ")
     while True:
         if user_input == 'n':
@@ -54,37 +54,31 @@ def scanning():
     soup = BeautifulSoup(content, 'html.parser')
     WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.ID, 'gdpr-banner-accept'))).click()
 
-    def get_element():
+    def get_elements():
         try:
             WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'aditem')))
         except TimeoutException:
             pass
         for a in soup.find_all('article', attrs={'class': 'aditem'}):
-            price = a.find('p', attrs={
-                'class': 'aditem-main--middle--price' and 'aditem-main--middle--price-shipping--price'})
+            price = a.find('p', attrs={'class': 'aditem-main--middle--price' and 'aditem-main--middle--price-shipping--price'})
             product = a.find('a', attrs={'class': 'ellipsis'})
             location = a.find('div', attrs={'class': 'aditem-main--top--left'})
-            # fix: checking if price exists
-            products.append(re.sub(r"\([^)]*\)", '', str(product.text).replace(" ", "")))
+            products.append(str(product.text).strip())
             if len(driver.find_elements(By.CSS_SELECTOR, '#srchrslt-adtable > li:nth-child(1) > article > div.aditem-main > div.aditem-main--middle > div.aditem-main--middle--price-shipping > p')) != 0:
-                prices.append(str(price.text).replace("  ", "").replace('\n', ''))
+                prices.append(str(price.text).strip())
             else:
                 prices.append('n/a')
-            locations.append(str(location.text).replace(" ", "").replace('\n', ''))
+            locations.append(str(location.text).strip())
             try:
                 if driver.find_elements(By.CLASS_NAME, 'pagination-next'):
-                    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next')))
-                    driver.find_element(By.CLASS_NAME, 'pagination-next').click()
+                    WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next'))).click()
                 else:
                     pass
             except NoSuchElementException:
                 pass
 
-    if driver.find_elements(By.CLASS_NAME, 'pagination-next'):
-        get_element()
     while driver.find_elements(By.CLASS_NAME, 'pagination-next'):
-        print(driver.find_elements(By.CLASS_NAME, 'pagination-next'))
-        get_element()
+        get_elements()
     else:
         driver.close()
     print(products)
@@ -102,4 +96,4 @@ def scanning():
 
 
 scanning()
-handling_items_csv()
+handling_csv()
