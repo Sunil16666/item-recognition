@@ -16,17 +16,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 # START: INIT
 ELEMENT_TO_SEARCH = input("enter element to search for: ")
 chrome_options = Options()
-# chrome_options.add_argument("--headless")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36')
 URL_TO_SCAN = f"https://www.ebay-kleinanzeigen.de/s-muenster-%28westfalen%29/{ELEMENT_TO_SEARCH}/k0l929"
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-
-def interceptor(request):
-    request.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, ' \
-                                    'like Gecko) Chrome/105.0.0.0 Safari/537.36 '
-
-
-driver.request_interceptor = interceptor
 # END: INIT
 
 
