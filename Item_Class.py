@@ -1,3 +1,4 @@
+from selenium.common import NoSuchElementException
 
 
 class Item:
@@ -8,3 +9,6 @@ class Item:
         self.description = description
         self.satisfaction = satisfaction
         self.type_of_sale = type_of_sale
+
+
+
