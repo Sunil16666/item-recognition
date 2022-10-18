@@ -2,6 +2,8 @@
 
 import csv
 import os
+
+import pymongo as pymongo
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
@@ -14,16 +16,20 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 # START: INIT
+client = pymongo.MongoClient("mongodb+srv://54o84mnf9k5g2DAC:54o84mnf9k5g2DAC@webscraper-ebay.k17drvn.mongodb.net/items?retryWrites=true&w=majority")
+db = client.test
+print(db)
+
 ELEMENT_TO_SEARCH = input("enter element to search for: ")
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--headless")
 chrome_options.add_argument('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36')
 URL_TO_SCAN = f"https://www.ebay-kleinanzeigen.de/s-muenster-%28westfalen%29/{ELEMENT_TO_SEARCH}/k0l929"
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 # END: INIT
 
 
-def handling_csv():
+def data_handling():
     user_input = input("Do you want do keep items.csv? (y) for YES and (n) for NO: ")
     while True:
         if user_input == 'n':
@@ -59,18 +65,15 @@ def scanning():
             name = a.find('a', attrs={'class': 'ellipsis'})
             location = a.find('div', attrs={'class': 'aditem-main--top--left'})
 
-            name_new = products.append(str(name.text).strip())
-
-            name_count = len(name)
+            products.append(str(name.text).strip())
 
             if len(driver.find_elements(By.CSS_SELECTOR, '#srchrslt-adtable > li:nth-child(1) > article > div.aditem-main > div.aditem-main--middle > div.aditem-main--middle--price-shipping > p')) != 0:
-                price_new = prices.append(str(price.text).strip())
+                prices.append(str(price.text).strip())
             else:
-                price_new = prices.append('n/a')
+                prices.append('n/a')
 
-            location_new = locations.append(str(location.text).strip())
+            locations.append(str(location.text).strip())
 
-            # product_ = {{}, {}, {}}
             try:
                 if driver.find_elements(By.CLASS_NAME, 'pagination-next'):
                     WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.CLASS_NAME, 'pagination-next'))).click()
@@ -78,7 +81,7 @@ def scanning():
                     pass
             except NoSuchElementException:
                 pass
-
+    get_elements()
     while driver.find_elements(By.CLASS_NAME, 'pagination-next'):
         get_elements()
     else:
@@ -98,4 +101,4 @@ def scanning():
 
 
 scanning()
-handling_csv()
+data_handling()
